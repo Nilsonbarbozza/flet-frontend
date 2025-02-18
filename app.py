@@ -7,8 +7,8 @@ def main(page: ft.Page):
     page.title = "PageTeste"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
 
-    #Campo da aplicação
 
+    #Campo da aplicação
     nome_field = ft.TextField(label="Nome")
     email_field = ft.TextField(label="email")
     faixa_field = ft.TextField(label="faixa")
@@ -16,7 +16,6 @@ def main(page: ft.Page):
     create_result = ft.Text()
 
     #Criar a função de orientação a evento
-
     def criar_aluno_click(e):
 
         payload = {
@@ -35,11 +34,10 @@ def main(page: ft.Page):
         
         page.update()
 
-    create_button = ft.ElevatedButton(text="Cadastrar", on_click=criar_aluno_click)
+    create_button = ft.ElevatedButton(text="Cadastrar", on_click=criar_aluno_click) 
 
 
     #Cria uma page Container colunas
-
     criar_tabela_aluno = ft.Column(
         [
             nome_field,
@@ -52,11 +50,9 @@ def main(page: ft.Page):
     )
 
     #Listar alunos - funcionalidade
-
     #Criar uma tabela de exibição
     students_table = ft.DataTable(
         columns=[
-            ft.DataColumn(ft.Text('ID')),
             ft.DataColumn(ft.Text('NOME')),
             ft.DataColumn(ft.Text('EMAIL')),
             ft.DataColumn(ft.Text('FAIXA')),
@@ -80,7 +76,6 @@ def main(page: ft.Page):
         for aluno in alunos:
             row = ft.DataRow(
                 cells=[
-                    ft.DataCell(ft.Text(aluno.get('id'))),
                     ft.DataCell(ft.Text(aluno.get('nome'))),
                     ft.DataCell(ft.Text(aluno.get('email'))),
                     ft.DataCell(ft.Text(aluno.get('faixa'))),
@@ -95,13 +90,39 @@ def main(page: ft.Page):
     list_button = ft.ElevatedButton(text="Listar Alunos", on_click=listar_alunos_click )
     listar_alunos_tab = ft.Column([students_table, list_result, list_button], scroll=True)
 
-    #criar uma navegação entre tabs
+    #Registrar aula
+    email_aula_field = ft.TextField(label="Email Aluno")
+    qtd_field = ft.TextField(label="Quantidade de aula", value=1)
+    aula_result = ft.Text()
 
+    def marca_aula(e):
+        payload = {
+            'qtd': int(qtd_field.value),
+            'email_aluno': email_aula_field.value,
+        }
+
+        response = requests.post(API_BASE_URL + '/aula_realizada/', json=payload)
+        if response.status_code == 200:
+            aula_result.value = f"Aula cadastrada{response.json()}"
+        else:
+            aula_result.value = f"Error: {response.text}" 
+        
+        page.update()
+
+    aula_button = ft.ElevatedButton(text="Registrar", on_click=marca_aula)
+    aula_tab = ft.Column([email_aula_field, qtd_field, aula_result, aula_button], scroll=True)
+
+    #
+
+    #criar uma navegação entre tabs
     tabs = ft.Tabs(
         selected_index = 0,
+        animation_duration= 300,
+
         tabs=[
-            ft.Tab(text="Casdastro", content=criar_tabela_aluno),
-            ft.Tab(text="Listar Alunos", content=listar_alunos_tab)
+            ft.Tab(text="Cadastro", content=criar_tabela_aluno),
+            ft.Tab(text="Alunos", content=listar_alunos_tab),
+            ft.Tab(text="Aulas Concluida", content=aula_tab)
         ]
     )
 
