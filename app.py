@@ -8,8 +8,7 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
 
 
-    #Campo da aplicação
-    id_field = ft.TextField(label="id")
+    #Campo da aplicaçã
     nome_field = ft.TextField(label="Nome")
     email_field = ft.TextField(label="email")
     faixa_field = ft.TextField(label="faixa")
@@ -37,58 +36,6 @@ def main(page: ft.Page):
 
     create_button = ft.ElevatedButton(text="Cadastrar", on_click=criar_aluno_click) 
 
-
-    #Campo da aplicação
-    id_field = ft.TextField(label="id novo")
-    nome_field2 = ft.TextField(label="Nome novo")
-    email_field2 = ft.TextField(label="email novo")
-    faixa_field2 = ft.TextField(label="faixa novo")
-    data_nascimento_field2 = ft.TextField(label="Data nascimento (yyyy-mm-aaa)")
-    update_result = ft.Text()
-
-    #Atualizar dados Aluno
-    def atualizar_aluno_click(e):
-        aluno_id = id_field.value
-        if not aluno_id:
-            update_result.value = "ID ERRADO! Error para atualizar"
-        else: 
-            payload = {}
-            if nome_field2.value:
-                payload["nome"] = nome_field2.value
-            if email_field2.value:
-                payload["email"] = email_field2.value
-            if faixa_field2.value:
-                payload["faixa"] = email_field2.value
-            if data_nascimento_field2.value:
-                payload["email"] = email_field2.value
-
-            response = requests.put(API_BASE_URL + f'/alunos/{aluno_id}', json=payload)
-            print(response)
-
-            if response.status_code == 200:
-                aluno = response.json()
-                update_result.value = "Atualizado"
-                update_button.value = f"Aluno atualizada{aluno}"
-            else:
-                update_result.value = f"Error{response.text}"
-
-            print(aluno_id)
-
-        page.update()
-
-    update_button = ft.ElevatedButton(text="Atualizar", on_click=atualizar_aluno_click)
-    atualizar_tab = ft.Column(
-            [
-                id_field,
-                nome_field2,
-                email_field2,
-                faixa_field2,
-                data_nascimento_field2,
-                update_result,
-                update_button
-            ], scroll=True
-    )
-    
     #Cria uma page Container colunas
     criar_tabela_aluno = ft.Column(
         [
@@ -190,6 +137,53 @@ def main(page: ft.Page):
 
     progress_button = ft.ElevatedButton(text="Ver progresso", on_click=progress_click)
     progress_tab = ft.Column([email_progress_field,progress_aluno_field,progress_button ], scroll=True)
+
+
+    id_aluno_field = ft.TextField(label="ID do Aluno")
+    nome_update_field = ft.TextField(label="Novo Nome")
+    email_update_field = ft.TextField(label="Novo Email")
+    faixa_update_field = ft.TextField(label="Nova Faixa")
+    data_nascimento_update_field = ft.TextField(label="Nova Data de Nascimento (YYYY-MM-DD)")
+    update_result = ft.Text()
+
+    def atualizar_aluno_click(e):
+        try:
+            aluno_id = id_aluno_field.value
+            if not aluno_id:
+                update_result.value = "ID do aluno é necessário."
+            else:
+                payload = {
+                    "nome": nome_update_field.value,
+                    "email": email_aula_field.value,
+                    "faixa": faixa_update_field.value,
+                    "data_nascimento": data_nascimento_field.value,
+                }
+
+                response = requests.put(API_BASE_URL + f"/alunos/{aluno_id}", json=payload)
+                print(response)
+                if response.status_code == 200:
+                    aluno = response.json()
+                    update_result.value = f"Aluno atualizado: {aluno}"
+                else:
+                    update_result.value = f"Erro: {response.text}"
+        except Exception as ex:
+            update_result.value = f"Exceção: {ex}"
+
+        page.update()
+
+    update_button = ft.ElevatedButton(text="Atualizar Aluno", on_click=atualizar_aluno_click)
+    atualizar_tab = ft.Column(
+        [
+            id_aluno_field,
+            nome_update_field,
+            email_update_field,
+            faixa_update_field,
+            data_nascimento_update_field,
+            update_button,
+            update_result,
+        ],
+        scroll=True,
+    )
 
     #criar uma navegação entre tabs
     tabs = ft.Tabs(
