@@ -9,6 +9,7 @@ def main(page: ft.Page):
 
 
     #Campo da aplicação
+    id_field = ft.TextField(label="id")
     nome_field = ft.TextField(label="Nome")
     email_field = ft.TextField(label="email")
     faixa_field = ft.TextField(label="faixa")
@@ -37,6 +38,57 @@ def main(page: ft.Page):
     create_button = ft.ElevatedButton(text="Cadastrar", on_click=criar_aluno_click) 
 
 
+    #Campo da aplicação
+    id_field = ft.TextField(label="id novo")
+    nome_field2 = ft.TextField(label="Nome novo")
+    email_field2 = ft.TextField(label="email novo")
+    faixa_field2 = ft.TextField(label="faixa novo")
+    data_nascimento_field2 = ft.TextField(label="Data nascimento (yyyy-mm-aaa)")
+    update_result = ft.Text()
+
+    #Atualizar dados Aluno
+    def atualizar_aluno_click(e):
+        aluno_id = id_field.value
+        if not aluno_id:
+            update_result.value = "ID ERRADO! Error para atualizar"
+        else: 
+            payload = {}
+            if nome_field2.value:
+                payload["nome"] = nome_field2.value
+            if email_field2.value:
+                payload["email"] = email_field2.value
+            if faixa_field2.value:
+                payload["faixa"] = email_field2.value
+            if data_nascimento_field2.value:
+                payload["email"] = email_field2.value
+
+            response = requests.put(API_BASE_URL + f'/alunos/{aluno_id}', json=payload)
+            print(response)
+
+            if response.status_code == 200:
+                aluno = response.json()
+                update_result.value = "Atualizado"
+                update_button.value = f"Aluno atualizada{aluno}"
+            else:
+                update_result.value = f"Error{response.text}"
+
+            print(aluno_id)
+
+        page.update()
+
+    update_button = ft.ElevatedButton(text="Atualizar", on_click=atualizar_aluno_click)
+    atualizar_tab = ft.Column(
+            [
+                id_field,
+                nome_field2,
+                email_field2,
+                faixa_field2,
+                data_nascimento_field2,
+                update_result,
+                update_button
+            ], scroll=True
+    )
+    
     #Cria uma page Container colunas
     criar_tabela_aluno = ft.Column(
         [
@@ -112,7 +164,32 @@ def main(page: ft.Page):
     aula_button = ft.ElevatedButton(text="Registrar", on_click=marca_aula)
     aula_tab = ft.Column([email_aula_field, qtd_field, aula_result, aula_button], scroll=True)
 
-    #
+    #Progresso aluno
+    email_progress_field = ft.TextField(label="Email-Aluno")
+    progress_aluno_field = ft.Text()
+
+    
+
+    def progress_click(e):
+        email = email_progress_field.value
+        response = requests.get(API_BASE_URL + '/progresso_aluno/', params={'email_aluno':email})
+
+        if response.status_code == 200:
+            progress = response.json()
+            progress_aluno_field.value = (
+            f"Nome:{progress.get('nome')}\n"
+            f"Email:{progress.get('email')}\n"
+            f"Faixa:{progress.get('faixa')}\n"
+            f"Aulas:{progress.get('total_aulas')}\n"
+            f"Aulas Necessaria para proxima faixa:{progress.get('aulas_necessarios_para_proxima_faixa')}\n"
+            )
+        else:
+            progress_aluno_field.value = "Error404"
+
+        page.update()
+
+    progress_button = ft.ElevatedButton(text="Ver progresso", on_click=progress_click)
+    progress_tab = ft.Column([email_progress_field,progress_aluno_field,progress_button ], scroll=True)
 
     #criar uma navegação entre tabs
     tabs = ft.Tabs(
@@ -122,7 +199,9 @@ def main(page: ft.Page):
         tabs=[
             ft.Tab(text="Cadastro", content=criar_tabela_aluno),
             ft.Tab(text="Alunos", content=listar_alunos_tab),
-            ft.Tab(text="Aulas Concluida", content=aula_tab)
+            ft.Tab(text="Concluida", content=aula_tab),
+            ft.Tab(text="Progresso", content=progress_tab),
+            ft.Tab(text="Progresso", content=atualizar_tab)
         ]
     )
 
