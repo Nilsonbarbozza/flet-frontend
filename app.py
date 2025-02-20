@@ -29,6 +29,7 @@ def main(page: ft.Page):
         if response.status_code == 200:
             aluno = response.json()
             create_result.value = f'Aluno criado{aluno}'
+            create_result.color = "green"
         else:
             create_result.value = f'Error ao criar aluno{response.text}'
         
@@ -83,6 +84,7 @@ def main(page: ft.Page):
             )
             students_table.rows.append(row)
             list_result.value = f"{len(alunos)} alunos encontrados"
+            list_result.color = "green"
             page.update()
 
     list_result = ft.Text()
@@ -103,6 +105,7 @@ def main(page: ft.Page):
         response = requests.post(API_BASE_URL + '/aula_realizada/', json=payload)
         if response.status_code == 200:
             aula_result.value = f"Aula cadastrada{response.json()}"
+            aula_result.color = "green"
         else:
             aula_result.value = f"Error: {response.text}" 
         
@@ -130,6 +133,7 @@ def main(page: ft.Page):
             f"Aulas:{progress.get('total_aulas')}\n"
             f"Aulas Necessaria para proxima faixa:{progress.get('aulas_necessarios_para_proxima_faixa')}\n"
             )
+            progress_aluno_field.color = "green"
         else:
             progress_aluno_field.value = "Error404"
 
@@ -151,6 +155,7 @@ def main(page: ft.Page):
             aluno_id = id_aluno_field.value
             if not aluno_id:
                 update_result.value = "ID do aluno é necessário."
+                update_result.color = "red"
             else:
                 payload = {
                     "nome": nome_update_field.value,
@@ -164,6 +169,7 @@ def main(page: ft.Page):
                 if response.status_code == 200:
                     aluno = response.json()
                     update_result.value = f"Aluno atualizado: {aluno}"
+                    update_result.color = "green"
                 else:
                     update_result.value = f"Erro: {response.text}"
         except Exception as ex:
@@ -185,6 +191,47 @@ def main(page: ft.Page):
         scroll=True,
     )
 
+
+    # Deletar usuário
+    id_aluno_field = ft.TextField(label="ID do aluno a deletar")
+    email_aluno_field = ft.TextField(label="E-mail")
+    result_delet = ft.Text(color="red")  # Exibir erros em vermelho
+
+    def delete_aluno(e):
+        aluno_id2 = id_aluno_field.value
+        email = email_aluno_field.value
+
+        if not aluno_id2 or email:
+            result_delet.value = "Preencha todos os campos!"
+            page.update()
+            return
+
+        try:
+            response = requests.delete(
+                f"{API_BASE_URL}/delete/{aluno_id2}",
+                params={"email_aluno": email}
+            )
+
+            if response.status_code == 200:
+                result_delet.value = "Usuário excluído com sucesso!"
+                result_delet.color = "green"
+                id_aluno_field.visible = False
+                email_aluno_field.visible = False
+                delet_button.visible = False
+            elif response.status_code == 404:
+                result_delet.value = "Usuário não encontrado!"
+            else:
+                result_delet.value = f"Erro ao excluir: {response.text}"
+        except requests.exceptions.RequestException as err:
+            result_delet.value = f"Erro de conexão: {err}"
+
+        page.update()
+
+    delet_button = ft.ElevatedButton(text="Deletar", on_click=delete_aluno)
+    delet_tab = ft.Column([id_aluno_field, email_aluno_field, result_delet, delet_button], scroll=True)
+    
+
+
     #criar uma navegação entre tabs
     tabs = ft.Tabs(
         selected_index = 0,
@@ -195,7 +242,8 @@ def main(page: ft.Page):
             ft.Tab(text="Alunos", content=listar_alunos_tab),
             ft.Tab(text="Concluida", content=aula_tab),
             ft.Tab(text="Progresso", content=progress_tab),
-            ft.Tab(text="Progresso", content=atualizar_tab)
+            ft.Tab(text="Atualizar", content=atualizar_tab),
+            ft.Tab(text="Deletar", content=delet_tab, ),
         ]
     )
 
