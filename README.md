@@ -1,7 +1,5 @@
 # 📌 Área de Gerenciamento e Cadastro de Alunos de Artes Marciais  
-
-![Interface do Sistema](image.png)  
-
+ 
 🚀 **Descrição:**  
 Este projeto é um sistema de gerenciamento para academias de artes marciais, permitindo:  
 
@@ -10,6 +8,8 @@ Este projeto é um sistema de gerenciamento para academias de artes marciais, pe
 ✅ Registro de aulas concluídas  
 ✅ Verificação de progresso  
 ✅ Atualização e exclusão de dados  
+
+![Interface do Sistema](image.png)  
 
 ---
 
@@ -21,9 +21,9 @@ Este projeto é um sistema de gerenciamento para academias de artes marciais, pe
 
 ---
 
-📬 Contato: Caso tenha dúvidas, entre em contato! 🚀
+📬 **Contato: Caso tenha dúvidas, entre em contato!** 🚀
 
-Email: barbosa.nilsonneto@gmail.com
-X: @Nilsonbarbozza
-Whatsapp: (084) 9970-0898
+- **Email:** barbosa.nilsonneto@gmail.com
+- **X:** @Nilsonbarbozza
+- **Whatsapp:** (084) 9970-0898
 
